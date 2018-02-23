@@ -49,8 +49,6 @@ define([
         this.id = entity;
         this.vertexFormat = undefined;
         this.rectangle = undefined;
-        this.closeBottom = undefined;
-        this.closeTop = undefined;
         this.height = undefined;
         this.extrudedHeight = undefined;
         this.granularity = undefined;
@@ -184,8 +182,6 @@ define([
                !Property.isConstant(rectangle.stRotation) || //
                !Property.isConstant(rectangle.rotation) || //
                !Property.isConstant(rectangle.outlineWidth) || //
-               !Property.isConstant(rectangle.closeBottom) || //
-               !Property.isConstant(rectangle.closeTop) || //
                (this._onTerrain && !Property.isConstant(this._materialProperty));
     };
 
@@ -243,8 +239,6 @@ define([
         options.granularity = Property.getValueOrUndefined(rectangle.granularity, time);
         options.stRotation = Property.getValueOrUndefined(rectangle.stRotation, time);
         options.rotation = Property.getValueOrUndefined(rectangle.rotation, time);
-        options.closeBottom = Property.getValueOrDefault(rectangle.closeBottom, time, true);
-        options.closeTop = Property.getValueOrDefault(rectangle.closeTop, time, true);
     };
 
     return RectangleGeometryUpdater;

@@ -165,16 +165,6 @@ defineSuite([
         entity.rectangle.extrudedHeight = new ConstantProperty(1000);
         updater._onEntityPropertyChanged(entity, 'rectangle');
         expect(updater.isClosed).toBe(true);
-        entity.rectangle.closeBottom = new ConstantProperty(false);
-        updater._onEntityPropertyChanged(entity, 'rectangle');
-        expect(updater.isClosed).toBe(false);
-        entity.rectangle.closeBottom = new ConstantProperty(true);
-        entity.rectangle.closeTop = new ConstantProperty(false);
-        updater._onEntityPropertyChanged(entity, 'rectangle');
-        expect(updater.isClosed).toBe(false);
-        entity.rectangle.closeTop = new ConstantProperty(true);
-        updater._onEntityPropertyChanged(entity, 'rectangle');
-        expect(updater.isClosed).toBe(true);
     });
 
     it('A time-varying outlineWidth causes geometry to be dynamic', function() {
@@ -237,34 +227,6 @@ defineSuite([
         expect(updater.isDynamic).toBe(true);
     });
 
-    it('A time-varying closeTop causes geometry to be dynamic', function() {
-        var entity = createBasicRectangle();
-        var updater = new RectangleGeometryUpdater(entity, scene);
-        entity.rectangle.closeTop = new TimeIntervalCollectionProperty();
-        entity.rectangle.closeTop.intervals.addInterval(new TimeInterval({
-            start : time,
-            stop : time2,
-            data : false
-        }));
-        updater._onEntityPropertyChanged(entity, 'rectangle');
-
-        expect(updater.isDynamic).toBe(true);
-    });
-
-    it('A time-varying closeBottom causes geometry to be dynamic', function() {
-        var entity = createBasicRectangle();
-        var updater = new RectangleGeometryUpdater(entity, scene);
-        entity.rectangle.closeBottom = new TimeIntervalCollectionProperty();
-        entity.rectangle.closeBottom.intervals.addInterval(new TimeInterval({
-            start : time,
-            stop : time2,
-            data : false
-        }));
-        updater._onEntityPropertyChanged(entity, 'rectangle');
-
-        expect(updater.isDynamic).toBe(true);
-    });
-
     it('A time-varying color causes ground geometry to be dynamic', function() {
         var entity = createBasicRectangleWithoutHeight();
         var updater = new RectangleGeometryUpdater(entity, scene);
@@ -290,8 +252,6 @@ defineSuite([
         rectangle.height = new ConstantProperty(options.height);
         rectangle.extrudedHeight = new ConstantProperty(options.extrudedHeight);
         rectangle.granularity = new ConstantProperty(options.granularity);
-        rectangle.closeTop = new ConstantProperty(options.closeTop);
-        rectangle.closeBottom = new ConstantProperty(options.closeBottom);
         rectangle.distanceDisplayCondition = options.distanceDisplayCondition;
 
         var updater = new RectangleGeometryUpdater(entity, scene);
@@ -307,8 +267,6 @@ defineSuite([
             expect(geometry._surfaceHeight).toEqual(options.height);
             expect(geometry._granularity).toEqual(options.granularity);
             expect(geometry._extrudedHeight).toEqual(options.extrudedHeight);
-            expect(geometry._closeTop).toEqual(options.closeTop);
-            expect(geometry._closeBottom).toEqual(options.closeBottom);
 
             attributes = instance.attributes;
             if (options.material instanceof ColorMaterialProperty) {
@@ -349,9 +307,7 @@ defineSuite([
             stRotation : 12,
             fill : true,
             outline : true,
-            outlineColor : Color.BLUE,
-            closeTop : false,
-            closeBottom : true
+            outlineColor : Color.BLUE
         });
     });
 
@@ -366,9 +322,7 @@ defineSuite([
             stRotation : 12,
             fill : true,
             outline : true,
-            outlineColor : Color.BLUE,
-            closeTop : false,
-            closeBottom : true
+            outlineColor : Color.BLUE
         });
     });
 
@@ -384,8 +338,6 @@ defineSuite([
             fill : true,
             outline : true,
             outlineColor : Color.BLUE,
-            closeTop : false,
-            closeBottom : true,
             distanceDisplayCondition : new DistanceDisplayCondition(10.0, 100.0)
         });
     });
