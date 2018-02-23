@@ -132,9 +132,6 @@ define([
         var modelMatrix = entity.computeModelMatrix(time);
         var plane = Property.getValueOrDefault(planeGraphics.plane, time, options.plane);
         var dimensions = Property.getValueOrUndefined(planeGraphics.dimensions, time, options.dimensions);
-        if (!defined(modelMatrix) || !defined(plane) || !defined(dimensions)) {
-            return;
-        }
 
         options.plane = plane;
         options.dimensions = dimensions;
@@ -176,9 +173,6 @@ define([
         var modelMatrix = entity.computeModelMatrix(time);
         var plane = Property.getValueOrDefault(planeGraphics.plane, time, options.plane);
         var dimensions = Property.getValueOrUndefined(planeGraphics.dimensions, time, options.dimensions);
-        if (!defined(modelMatrix) || !defined(plane) || !defined(dimensions)) {
-            return;
-        }
 
         options.plane = plane;
         options.dimensions = dimensions;

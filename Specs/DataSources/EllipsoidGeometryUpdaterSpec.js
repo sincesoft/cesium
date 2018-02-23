@@ -420,7 +420,6 @@ defineSuite([
         ellipsoid.radii = createDynamicProperty(new Cartesian3(1, 2, 3));
         ellipsoid.outline = createDynamicProperty(true);
         ellipsoid.fill = createDynamicProperty(true);
-        ellipsoid.distanceDisplayCondition = new DistanceDisplayCondition(10.0, 100.0)
 
         var entity = new Entity();
         entity.position = createDynamicProperty(Cartesian3.fromDegrees(0, 0, 0));
@@ -527,20 +526,24 @@ defineSuite([
         scene.initializeFrame();
         scene.render();
 
+        var ddc = new DistanceDisplayCondition(10.0, 100.0);
         ellipsoid.fill.setValue(false);
         ellipsoid.outline.setValue(false);
         ellipsoid.outlineColor = createDynamicProperty(Color.YELLOW);
         ellipsoid.material = new ColorMaterialProperty(Color.ORANGE);
+        ellipsoid.distanceDisplayCondition = ddc;
         updater._onEntityPropertyChanged(entity, 'ellipsoid');
         dynamicUpdater.update(time);
 
         var attributes = primitives.get(0).getGeometryInstanceAttributes(entity);
         expect(attributes.show[0]).toEqual(0);
+        expect(attributes.distanceDisplayCondition).toEqual(DistanceDisplayConditionGeometryInstanceAttribute.toValue(ddc));
         expect(primitives.get(0).appearance.material.uniforms.color).toEqual(ellipsoid.material.color.getValue());
 
         attributes = primitives.get(1).getGeometryInstanceAttributes(entity);
         expect(attributes.show[0]).toEqual(0);
         expect(attributes.color).toEqual(ColorGeometryInstanceAttribute.toValue(ellipsoid.outlineColor.getValue()));
+        expect(attributes.distanceDisplayCondition).toEqual(DistanceDisplayConditionGeometryInstanceAttribute.toValue(ddc));
     });
 
     it('geometryChanged event is raised when expected', function() {
