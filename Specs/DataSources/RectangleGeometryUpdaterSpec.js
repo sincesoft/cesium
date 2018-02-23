@@ -166,10 +166,11 @@ defineSuite([
         updater._onEntityPropertyChanged(entity, 'rectangle');
         expect(updater.isClosed).toBe(true);
         entity.rectangle.closeBottom = new ConstantProperty(false);
+        updater._onEntityPropertyChanged(entity, 'rectangle');
         expect(updater.isClosed).toBe(false);
         entity.rectangle.closeBottom = new ConstantProperty(true);
-        updater._onEntityPropertyChanged(entity, 'rectangle');
         entity.rectangle.closeTop = new ConstantProperty(false);
+        updater._onEntityPropertyChanged(entity, 'rectangle');
         expect(updater.isClosed).toBe(false);
         entity.rectangle.closeTop = new ConstantProperty(true);
         updater._onEntityPropertyChanged(entity, 'rectangle');

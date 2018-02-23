@@ -420,6 +420,7 @@ defineSuite([
         ellipsoid.radii = createDynamicProperty(new Cartesian3(1, 2, 3));
         ellipsoid.outline = createDynamicProperty(true);
         ellipsoid.fill = createDynamicProperty(true);
+        ellipsoid.distanceDisplayCondition = new DistanceDisplayCondition(10.0, 100.0)
 
         var entity = new Entity();
         entity.position = createDynamicProperty(Cartesian3.fromDegrees(0, 0, 0));
