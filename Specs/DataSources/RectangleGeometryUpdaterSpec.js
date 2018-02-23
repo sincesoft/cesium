@@ -135,7 +135,7 @@ defineSuite([
         var entity = createBasicRectangle();
         var updater = new RectangleGeometryUpdater(entity, scene);
 
-        expect(updater.isClosed).toBe(false);
+        expect(updater.isClosed).toBe(true);
         expect(updater.fillEnabled).toBe(true);
         expect(updater.fillMaterialProperty).toEqual(new ColorMaterialProperty(Color.WHITE));
         expect(updater.outlineEnabled).toBe(false);
@@ -159,11 +159,12 @@ defineSuite([
         var entity = createBasicRectangle();
         var updater = new RectangleGeometryUpdater(entity, scene);
         entity.rectangle.extrudedHeight = new ConstantProperty(1000);
+        expect(updater.isClosed).toBe(true);
+        entity.rectangle.closeBottom = new ConstantProperty(false);
         expect(updater.isClosed).toBe(false);
         entity.rectangle.closeBottom = new ConstantProperty(true);
+        entity.rectangle.closeTop = new ConstantProperty(false);
         expect(updater.isClosed).toBe(false);
-        entity.rectangle.closeTop = new ConstantProperty(true);
-        expect(updater.isClosed).toBe(true);
     });
 
     it('A time-varying outlineWidth causes geometry to be dynamic', function() {

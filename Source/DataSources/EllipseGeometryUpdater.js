@@ -179,10 +179,6 @@ define([
         return this._fillEnabled && !defined(ellipse.height) && !defined(ellipse.extrudedHeight) && isColorMaterial && GroundPrimitive.isSupported(this._scene);
     };
 
-    EllipseGeometryUpdater.prototype._getIsClosed = function(entity, ellipse) {
-        return defined(ellipse.extrudedHeight) || this._onTerrain;
-    };
-
     EllipseGeometryUpdater.prototype._isDynamic = function(entity, ellipse) {
         return !entity.position.isConstant || //
                !ellipse.semiMajorAxis.isConstant || //
@@ -195,6 +191,13 @@ define([
                !Property.isConstant(ellipse.outlineWidth) || //
                !Property.isConstant(ellipse.numberOfVerticalLines) || //
                (this._onTerrain && !Property.isConstant(this._materialProperty));
+    };
+
+    EllipseGeometryUpdater.prototype._getIsClosed = function(options) {
+        var height = options.height;
+        var extrudedHeight = options.extrudedHeight;
+        var isExtruded = defined(extrudedHeight);
+        return (!isExtruded && height === 0) || (isExtruded && extrudedHeight !== height);
     };
 
     EllipseGeometryUpdater.prototype._setStaticOptions = function(entity, ellipse) {
@@ -236,10 +239,6 @@ define([
     DynamicEllipseGeometryUpdater.prototype._isHidden = function(entity, ellipse, time) {
         var options = this._options;
         return !defined(options.center) || !defined(options.semiMajorAxis) || !defined(options.semiMinorAxis) || DynamicGeometryUpdater.prototype._isHidden.call(this, entity, ellipse, time);
-    };
-
-    DynamicEllipseGeometryUpdater.prototype._getIsClosed = function(entity, ellipse, time) {
-        return defined(this._options.extrudedHeight);
     };
 
     DynamicEllipseGeometryUpdater.prototype._setOptions = function(entity, ellipse, time) {
