@@ -31,11 +31,7 @@
 function startup(Cesium) {
     'use strict';
 //Sandcastle_Begin
-var worldTerrain = new Cesium.CesiumTerrainProvider({
-    url : 'https://assets.agi.com/stk-terrain/v1/tilesets/world/tiles',
-    requestWaterMask : true,
-    requestVertexNormals : true
-});
+var worldTerrain = Cesium.createWorldTerrain();
 
 var viewer = new Cesium.Viewer('cesiumContainer', {
     terrainProvider: worldTerrain
@@ -53,32 +49,33 @@ var vrTheWorldProvider = new Cesium.VRTheWorldTerrainProvider({
 });
 
 Sandcastle.addToolbarMenu([{
-    text : 'CesiumTerrainProvider - STK World Terrain',
+    text : 'CesiumTerrainProvider - Cesium World Terrain',
     onselect : function() {
         viewer.terrainProvider = worldTerrain;
         viewer.scene.globe.enableLighting = true;
     }
 }, {
-    text : 'CesiumTerrainProvider - STK World Terrain - no effects',
+    text : 'CesiumTerrainProvider - Cesium World Terrain - no effects',
     onselect : function() {
-        viewer.terrainProvider = new Cesium.CesiumTerrainProvider({
-            url : 'https://assets.agi.com/stk-terrain/v1/tilesets/world/tiles'
+        viewer.terrainProvider = Cesium.createWorldTerrain({
+            requestVertexNormals : false,
+            requestWaterMask : false
         });
     }
 }, {
-    text : 'CesiumTerrainProvider - STK World Terrain w/ Lighting',
+    text : 'CesiumTerrainProvider - Cesium World Terrain w/ Lighting',
     onselect : function() {
-        viewer.terrainProvider = new Cesium.CesiumTerrainProvider({
-            url : 'https://assets.agi.com/stk-terrain/v1/tilesets/world/tiles',
-            requestVertexNormals : true
+        viewer.terrainProvider = Cesium.createWorldTerrain({
+            requestVertexNormals : true,
+            requestWaterMask : false
         });
         viewer.scene.globe.enableLighting = true;
     }
 }, {
-    text : 'CesiumTerrainProvider - STK World Terrain w/ Water',
+    text : 'CesiumTerrainProvider - Cesium World Terrain w/ Water',
     onselect : function() {
-        viewer.terrainProvider = new Cesium.CesiumTerrainProvider({
-            url : 'https://assets.agi.com/stk-terrain/v1/tilesets/world/tiles',
+        viewer.terrainProvider = Cesium.createWorldTerrain({
+            requestVertexNormals : false,
             requestWaterMask : true
         });
     }

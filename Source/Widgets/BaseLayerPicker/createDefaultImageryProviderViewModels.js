@@ -102,7 +102,7 @@ satellite imagery worldwide.  The map includes NASA Blue Marble: Next Generation
 imagery for Antarctica. The map features 0.3m resolution imagery in the continental United States and 0.6m resolution imagery in \
 parts of Western Europe from DigitalGlobe. In other parts of the world, 1 meter resolution imagery is available from GeoEye IKONOS, \
 i-cubed Nationwide Prime, Getmapping, AeroGRID, IGN Spain, and IGP Portugal.  Additionally, imagery at different resolutions has been \
-contributed by the GIS User Community.\nhttp://www.esri.com',
+contributed by the GIS User Community\nhttp://www.esri.com',
             creationFunction : function() {
                 return new ArcGisMapServerImageryProvider({
                     url : 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer',
@@ -117,7 +117,7 @@ contributed by the GIS User Community.\nhttp://www.esri.com',
             tooltip : '\
 This worldwide street map presents highway-level data for the world. Street-level data includes the United States; much of \
 Canada; Japan; most countries in Europe; Australia and New Zealand; India; parts of South America including Argentina, Brazil, \
-Chile, Colombia, and Venezuela; Ghana; and parts of southern Africa including Botswana, Lesotho, Namibia, South Africa, and Swaziland.\n\
+Chile, Colombia, and Venezuela; Ghana; and parts of southern Africa including Botswana, Lesotho, Namibia, South Africa, and Swaziland\n\
 http://www.esri.com',
             creationFunction : function() {
                 return new ArcGisMapServerImageryProvider({
@@ -133,7 +133,7 @@ http://www.esri.com',
             tooltip : '\
 This web map contains the National Geographic World Map service. This map service is designed to be used as a general reference map \
 for informational and educational purposes as well as a basemap by GIS professionals and other users for creating web maps and web \
-mapping applications.\nhttp://www.esri.com',
+mapping applications\nhttp://www.esri.com',
             creationFunction : function() {
                 return new ArcGisMapServerImageryProvider({
                     url : 'https://services.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/',
@@ -146,7 +146,7 @@ mapping applications.\nhttp://www.esri.com',
             name : 'Open\u00adStreet\u00adMap',
             iconUrl : buildModuleUrl('Widgets/Images/ImageryProviders/openStreetMap.png'),
             tooltip : 'OpenStreetMap (OSM) is a collaborative project to create a free editable map \
-of the world.\nhttp://www.openstreetmap.org',
+of the world\nhttp://www.openstreetmap.org',
             creationFunction : function() {
                 return createOpenStreetMapImageryProvider({
                     url : 'https://a.tile.openstreetmap.org/'
@@ -158,11 +158,11 @@ of the world.\nhttp://www.openstreetmap.org',
             name : 'Stamen Watercolor',
             iconUrl : buildModuleUrl('Widgets/Images/ImageryProviders/stamenWatercolor.png'),
             tooltip : 'Reminiscent of hand drawn maps, Stamen watercolor maps apply raster effect \
-area washes and organic edges over a paper texture to add warm pop to any map.\nhttp://maps.stamen.com',
+area washes and organic edges over a paper texture to add warm pop to any map\nhttp://maps.stamen.com',
             creationFunction : function() {
                 return createOpenStreetMapImageryProvider({
                     url : 'https://stamen-tiles.a.ssl.fastly.net/watercolor/',
-                    credit : 'Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under CC BY SA.'
+                    credit : 'Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under CC BY SA'
                 });
             }
         }));
@@ -170,11 +170,11 @@ area washes and organic edges over a paper texture to add warm pop to any map.\n
         providerViewModels.push(new ProviderViewModel({
             name : 'Stamen Toner',
             iconUrl : buildModuleUrl('Widgets/Images/ImageryProviders/stamenToner.png'),
-            tooltip : 'A high contrast black and white map.\nhttp://maps.stamen.com',
+            tooltip : 'A high contrast black and white map\nhttp://maps.stamen.com',
             creationFunction : function() {
                 return createOpenStreetMapImageryProvider({
                     url : 'https://stamen-tiles.a.ssl.fastly.net/toner/',
-                    credit : 'Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under CC BY SA.'
+                    credit : 'Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under CC BY SA'
                 });
             }
         }));
@@ -183,7 +183,7 @@ area washes and organic edges over a paper texture to add warm pop to any map.\n
             name : 'The Black Marble',
             iconUrl : buildModuleUrl('Widgets/Images/ImageryProviders/blackMarble.png'),
             tooltip : 'The lights of cities and villages trace the outlines of civilization in this global view of the \
-Earth at night as seen by NASA/NOAA\'s Suomi NPP satellite.',
+Earth at night as seen by NASA/NOAA\'s Suomi NPP satellite',
             creationFunction : function() {
                 return createTileMapServiceImageryProvider({
                     url : 'https://cesiumjs.org/blackmarble',
@@ -196,7 +196,7 @@ Earth at night as seen by NASA/NOAA\'s Suomi NPP satellite.',
         providerViewModels.push(new ProviderViewModel({
             name : 'Natural Earth\u00a0II',
             iconUrl : buildModuleUrl('Widgets/Images/ImageryProviders/naturalEarthII.png'),
-            tooltip : 'Natural Earth II, darkened for contrast.\nhttp://www.naturalearthdata.com/',
+            tooltip : 'Natural Earth II, darkened for contrast\nhttp://www.naturalearthdata.com/',
             creationFunction : function() {
                 return createTileMapServiceImageryProvider({
                     url : buildModuleUrl('Assets/Textures/NaturalEarthII')
