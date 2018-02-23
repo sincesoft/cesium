@@ -23,6 +23,7 @@ defineSuite([
         'Scene/ShadowMode',
         'Specs/createDynamicGeometryBoundingSphereSpecs',
         'Specs/createDynamicProperty',
+        'Specs/createGeometryUpdaterSpecs',
         'Specs/createScene'
     ], function(
         PlaneGeometryUpdater,
@@ -49,6 +50,7 @@ defineSuite([
         ShadowMode,
         createDynamicGeometryBoundingSphereSpecs,
         createDynamicProperty,
+        createGeometryUpdaterSpecs,
         createScene) {
     'use strict';
 
@@ -73,87 +75,6 @@ defineSuite([
         entity.plane = planeGraphics;
         return entity;
     }
-
-    it('Constructor sets expected defaults', function() {
-        var entity = new Entity();
-        var updater = new PlaneGeometryUpdater(entity, scene);
-
-        expect(updater.isDestroyed()).toBe(false);
-        expect(updater.entity).toBe(entity);
-        expect(updater.isClosed).toBe(false);
-        expect(updater.fillEnabled).toBe(false);
-        expect(updater.fillMaterialProperty).toBe(undefined);
-        expect(updater.outlineEnabled).toBe(false);
-        expect(updater.hasConstantFill).toBe(true);
-        expect(updater.hasConstantOutline).toBe(true);
-        expect(updater.outlineColorProperty).toBe(undefined);
-        expect(updater.outlineWidth).toBe(1.0);
-        expect(updater.shadowsProperty).toBe(undefined);
-        expect(updater.distanceDisplayConditionProperty).toBe(undefined);
-        expect(updater.isDynamic).toBe(false);
-        expect(updater.isOutlineVisible(time)).toBe(false);
-        expect(updater.isFilled(time)).toBe(false);
-        updater.destroy();
-        expect(updater.isDestroyed()).toBe(true);
-    });
-
-    it('No geometry available when plane is undefined ', function() {
-        var entity = createBasicPlane();
-        var updater = new PlaneGeometryUpdater(entity, scene);
-        entity.plane = undefined;
-        updater._onEntityPropertyChanged(entity, 'plane');
-
-        expect(updater.fillEnabled).toBe(false);
-        expect(updater.outlineEnabled).toBe(false);
-        expect(updater.isDynamic).toBe(false);
-    });
-
-    it('No geometry available when not filled or outline.', function() {
-        var entity = createBasicPlane();
-        var updater = new PlaneGeometryUpdater(entity, scene);
-        entity.plane.fill = new ConstantProperty(false);
-        entity.plane.outline = new ConstantProperty(false);
-        updater._onEntityPropertyChanged(entity, 'plane');
-
-        expect(updater.fillEnabled).toBe(false);
-        expect(updater.outlineEnabled).toBe(false);
-        expect(updater.isDynamic).toBe(false);
-    });
-
-    it('Values correct when using default graphics', function() {
-        var entity = createBasicPlane();
-        var updater = new PlaneGeometryUpdater(entity, scene);
-
-        expect(updater.isClosed).toBe(false);
-        expect(updater.fillEnabled).toBe(true);
-        expect(updater.fillMaterialProperty).toEqual(new ColorMaterialProperty(Color.WHITE));
-        expect(updater.outlineEnabled).toBe(false);
-        expect(updater.hasConstantFill).toBe(true);
-        expect(updater.hasConstantOutline).toBe(true);
-        expect(updater.outlineColorProperty).toBe(undefined);
-        expect(updater.outlineWidth).toBe(1.0);
-        expect(updater.shadowsProperty).toEqual(new ConstantProperty(ShadowMode.DISABLED));
-        expect(updater.distanceDisplayConditionProperty).toEqual(new ConstantProperty(new DistanceDisplayCondition()));
-        expect(updater.isDynamic).toBe(false);
-    });
-
-    it('Plane material is correctly exposed.', function() {
-        var entity = createBasicPlane();
-        var updater = new PlaneGeometryUpdater(entity, scene);
-        entity.plane.material = new GridMaterialProperty(Color.BLUE);
-        updater._onEntityPropertyChanged(entity, 'plane');
-
-        expect(updater.fillMaterialProperty).toBe(entity.plane.material);
-    });
-
-    it('A time-varying outlineWidth causes geometry to be dynamic', function() {
-        var entity = createBasicPlane();
-        var updater = new PlaneGeometryUpdater(entity, scene);
-        entity.plane.outlineWidth = createDynamicProperty();
-        updater._onEntityPropertyChanged(entity, 'plane');
-
-        expect(updater.isDynamic).toBe(true);
-    });
 
     it('A time-varying plane causes geometry to be dynamic', function() {
         var entity = createBasicPlane();
@@ -254,13 +175,6 @@ defineSuite([
         });
     });
 
-    it('Correctly exposes outlineWidth', function() {
-        var entity = createBasicPlane();
-        entity.plane.outlineWidth = new ConstantProperty(8);
-        var updater = new PlaneGeometryUpdater(entity, scene);
-        expect(updater.outlineWidth).toBe(8);
-    });
-
     it('Attributes have expected values at creation time', function() {
         var time1 = new JulianDate(0, 0);
         var time2 = new JulianDate(10, 0);
@@ -320,26 +234,6 @@ defineSuite([
         attributes = instance.attributes;
         expect(attributes.color.value).toEqual(ColorGeometryInstanceAttribute.toValue(outlineColor.getValue(time2)));
         expect(attributes.show.value).toEqual(ShowGeometryInstanceAttribute.toValue(outline.getValue(time2)));
-    });
-
-    it('createFillGeometryInstance obeys Entity.show is false.', function() {
-        var entity = createBasicPlane();
-        entity.show = false;
-        entity.plane.fill = true;
-        var updater = new PlaneGeometryUpdater(entity, scene);
-        var instance = updater.createFillGeometryInstance(new JulianDate());
-        var attributes = instance.attributes;
-        expect(attributes.show.value).toEqual(ShowGeometryInstanceAttribute.toValue(false));
-    });
-
-    it('createOutlineGeometryInstance obeys Entity.show is false.', function() {
-        var entity = createBasicPlane();
-        entity.show = false;
-        entity.plane.outline = true;
-        var updater = new PlaneGeometryUpdater(entity, scene);
-        var instance = updater.createFillGeometryInstance(new JulianDate());
-        var attributes = instance.attributes;
-        expect(attributes.show.value).toEqual(ShowGeometryInstanceAttribute.toValue(false));
     });
 
     it('dynamic updater sets properties', function() {
@@ -424,53 +318,14 @@ defineSuite([
         expect(listener.calls.count()).toEqual(3);
     });
 
-    it('createFillGeometryInstance throws if object is not filled', function() {
-        var entity = new Entity();
-        var updater = new PlaneGeometryUpdater(entity, scene);
-        expect(function() {
-            return updater.createFillGeometryInstance(time);
-        }).toThrowDeveloperError();
-    });
-
-    it('createFillGeometryInstance throws if no time provided', function() {
-        var entity = createBasicPlane();
-        var updater = new PlaneGeometryUpdater(entity, scene);
-        expect(function() {
-            return updater.createFillGeometryInstance(undefined);
-        }).toThrowDeveloperError();
-    });
-
-    it('createOutlineGeometryInstance throws if object is not outlined', function() {
-        var entity = new Entity();
-        var updater = new PlaneGeometryUpdater(entity, scene);
-        expect(function() {
-            return updater.createOutlineGeometryInstance(time);
-        }).toThrowDeveloperError();
-    });
-
-    it('createOutlineGeometryInstance throws if no time provided', function() {
-        var entity = createBasicPlane();
-        entity.plane.outline = new ConstantProperty(true);
-        var updater = new PlaneGeometryUpdater(entity, scene);
-        expect(function() {
-            return updater.createOutlineGeometryInstance(undefined);
-        }).toThrowDeveloperError();
-    });
-
-    it('dynamicUpdater.update throws if no time specified', function() {
-        var entity = createBasicPlane();
-        entity.plane.dimensions = createDynamicProperty(new Cartesian2(1.0, 2.0));
-        var updater = new PlaneGeometryUpdater(entity, scene);
-        var dynamicUpdater = updater.createDynamicUpdater(new PrimitiveCollection(), new PrimitiveCollection());
-        expect(function() {
-            dynamicUpdater.update(undefined);
-        }).toThrowDeveloperError();
-    });
-
     var entity = createBasicPlane();
     entity.plane.plane = createDynamicProperty(new Plane(Cartesian3.UNIT_X, 0.0));
     entity.plane.dimensions = createDynamicProperty(new Cartesian2(1.0, 2.0));
     createDynamicGeometryBoundingSphereSpecs(PlaneGeometryUpdater, entity, entity.plane, function() {
+        return scene;
+    });
+
+    createGeometryUpdaterSpecs(PlaneGeometryUpdater, 'plane', createBasicPlane, function() {
         return scene;
     });
 }, 'WebGL');

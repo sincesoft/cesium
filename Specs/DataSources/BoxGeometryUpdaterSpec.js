@@ -1,51 +1,53 @@
 defineSuite([
-        'DataSources/BoxGeometryUpdater',
-        'Core/Cartesian3',
-        'Core/Color',
-        'Core/ColorGeometryInstanceAttribute',
-        'Core/DistanceDisplayCondition',
-        'Core/DistanceDisplayConditionGeometryInstanceAttribute',
-        'Core/JulianDate',
-        'Core/ShowGeometryInstanceAttribute',
-        'Core/TimeInterval',
-        'Core/TimeIntervalCollection',
-        'DataSources/BoxGraphics',
-        'DataSources/ColorMaterialProperty',
-        'DataSources/ConstantPositionProperty',
-        'DataSources/ConstantProperty',
-        'DataSources/Entity',
-        'DataSources/GridMaterialProperty',
-        'DataSources/SampledProperty',
-        'DataSources/TimeIntervalCollectionProperty',
-        'Scene/PrimitiveCollection',
-        'Scene/ShadowMode',
-        'Specs/createDynamicGeometryBoundingSphereSpecs',
-        'Specs/createDynamicProperty',
-        'Specs/createScene'
-    ], function(
-        BoxGeometryUpdater,
-        Cartesian3,
-        Color,
-        ColorGeometryInstanceAttribute,
-        DistanceDisplayCondition,
-        DistanceDisplayConditionGeometryInstanceAttribute,
-        JulianDate,
-        ShowGeometryInstanceAttribute,
-        TimeInterval,
-        TimeIntervalCollection,
-        BoxGraphics,
-        ColorMaterialProperty,
-        ConstantPositionProperty,
-        ConstantProperty,
-        Entity,
-        GridMaterialProperty,
-        SampledProperty,
-        TimeIntervalCollectionProperty,
-        PrimitiveCollection,
-        ShadowMode,
-        createDynamicGeometryBoundingSphereSpecs,
-        createDynamicProperty,
-        createScene) {
+    'DataSources/BoxGeometryUpdater',
+    'Core/Cartesian3',
+    'Core/Color',
+    'Core/ColorGeometryInstanceAttribute',
+    'Core/DistanceDisplayCondition',
+    'Core/DistanceDisplayConditionGeometryInstanceAttribute',
+    'Core/JulianDate',
+    'Core/ShowGeometryInstanceAttribute',
+    'Core/TimeInterval',
+    'Core/TimeIntervalCollection',
+    'DataSources/BoxGraphics',
+    'DataSources/ColorMaterialProperty',
+    'DataSources/ConstantPositionProperty',
+    'DataSources/ConstantProperty',
+    'DataSources/Entity',
+    'DataSources/GridMaterialProperty',
+    'DataSources/SampledProperty',
+    'DataSources/TimeIntervalCollectionProperty',
+    'Scene/PrimitiveCollection',
+    'Scene/ShadowMode',
+    'Specs/createDynamicGeometryBoundingSphereSpecs',
+    'Specs/createDynamicProperty',
+    'Specs/createGeometryUpdaterSpecs',
+    'Specs/createScene'
+], function(
+    BoxGeometryUpdater,
+    Cartesian3,
+    Color,
+    ColorGeometryInstanceAttribute,
+    DistanceDisplayCondition,
+    DistanceDisplayConditionGeometryInstanceAttribute,
+    JulianDate,
+    ShowGeometryInstanceAttribute,
+    TimeInterval,
+    TimeIntervalCollection,
+    BoxGraphics,
+    ColorMaterialProperty,
+    ConstantPositionProperty,
+    ConstantProperty,
+    Entity,
+    GridMaterialProperty,
+    SampledProperty,
+    TimeIntervalCollectionProperty,
+    PrimitiveCollection,
+    ShadowMode,
+    createDynamicGeometryBoundingSphereSpecs,
+    createDynamicProperty,
+    createGeometryUpdaterSpecs,
+    createScene) {
     'use strict';
 
     var scene;
@@ -68,87 +70,6 @@ defineSuite([
         entity.box = box;
         return entity;
     }
-
-    it('Constructor sets expected defaults', function() {
-        var entity = new Entity();
-        var updater = new BoxGeometryUpdater(entity, scene);
-
-        expect(updater.isDestroyed()).toBe(false);
-        expect(updater.entity).toBe(entity);
-        expect(updater.isClosed).toBe(true);
-        expect(updater.fillEnabled).toBe(false);
-        expect(updater.fillMaterialProperty).toBe(undefined);
-        expect(updater.outlineEnabled).toBe(false);
-        expect(updater.hasConstantFill).toBe(true);
-        expect(updater.hasConstantOutline).toBe(true);
-        expect(updater.outlineColorProperty).toBe(undefined);
-        expect(updater.outlineWidth).toBe(1.0);
-        expect(updater.shadowsProperty).toBe(undefined);
-        expect(updater.distanceDisplayConditionProperty).toBe(undefined);
-        expect(updater.isDynamic).toBe(false);
-        expect(updater.isOutlineVisible(time)).toBe(false);
-        expect(updater.isFilled(time)).toBe(false);
-        updater.destroy();
-        expect(updater.isDestroyed()).toBe(true);
-    });
-
-    it('No geometry available when box is undefined ', function() {
-        var entity = createBasicBox();
-        var updater = new BoxGeometryUpdater(entity, scene);
-        entity.box = undefined;
-        updater._onEntityPropertyChanged(entity, 'box');
-
-        expect(updater.fillEnabled).toBe(false);
-        expect(updater.outlineEnabled).toBe(false);
-        expect(updater.isDynamic).toBe(false);
-    });
-
-    it('No geometry available when not filled or outline.', function() {
-        var entity = createBasicBox();
-        var updater = new BoxGeometryUpdater(entity, scene);
-        entity.box.fill = new ConstantProperty(false);
-        entity.box.outline = new ConstantProperty(false);
-        updater._onEntityPropertyChanged(entity, 'box');
-
-        expect(updater.fillEnabled).toBe(false);
-        expect(updater.outlineEnabled).toBe(false);
-        expect(updater.isDynamic).toBe(false);
-    });
-
-    it('Values correct when using default graphics', function() {
-        var entity = createBasicBox();
-        var updater = new BoxGeometryUpdater(entity, scene);
-
-        expect(updater.isClosed).toBe(true);
-        expect(updater.fillEnabled).toBe(true);
-        expect(updater.fillMaterialProperty).toEqual(new ColorMaterialProperty(Color.WHITE));
-        expect(updater.outlineEnabled).toBe(false);
-        expect(updater.hasConstantFill).toBe(true);
-        expect(updater.hasConstantOutline).toBe(true);
-        expect(updater.outlineColorProperty).toBe(undefined);
-        expect(updater.outlineWidth).toBe(1.0);
-        expect(updater.shadowsProperty).toEqual(new ConstantProperty(ShadowMode.DISABLED));
-        expect(updater.distanceDisplayConditionProperty).toEqual(new ConstantProperty(new DistanceDisplayCondition()));
-        expect(updater.isDynamic).toBe(false);
-    });
-
-    it('Box material is correctly exposed.', function() {
-        var entity = createBasicBox();
-        var updater = new BoxGeometryUpdater(entity, scene);
-        entity.box.material = new GridMaterialProperty(Color.BLUE);
-        updater._onEntityPropertyChanged(entity, 'box');
-
-        expect(updater.fillMaterialProperty).toBe(entity.box.material);
-    });
-
-    it('A time-varying outlineWidth causes geometry to be dynamic', function() {
-        var entity = createBasicBox();
-        var updater = new BoxGeometryUpdater(entity, scene);
-        entity.box.outlineWidth = createDynamicProperty();
-        updater._onEntityPropertyChanged(entity, 'box');
-
-        expect(updater.isDynamic).toBe(true);
-    });
 
     it('A time-varying dimensions causes geometry to be dynamic', function() {
         var entity = createBasicBox();
@@ -241,94 +162,6 @@ defineSuite([
         });
     });
 
-    it('Correctly exposes outlineWidth', function() {
-        var entity = createBasicBox();
-        entity.box.outlineWidth = new ConstantProperty(8);
-        var updater = new BoxGeometryUpdater(entity, scene);
-        expect(updater.outlineWidth).toBe(8);
-    });
-
-    it('Attributes have expected values at creation time', function() {
-        var time1 = new JulianDate(0, 0);
-        var time2 = new JulianDate(10, 0);
-        var time3 = new JulianDate(20, 0);
-
-        var fill = new TimeIntervalCollectionProperty();
-        fill.intervals.addInterval(new TimeInterval({
-            start : time1,
-            stop : time2,
-            data : false
-        }));
-        fill.intervals.addInterval(new TimeInterval({
-            start : time2,
-            stop : time3,
-            isStartIncluded : false,
-            data : true
-        }));
-
-        var colorMaterial = new ColorMaterialProperty();
-        colorMaterial.color = new SampledProperty(Color);
-        colorMaterial.color.addSample(time, Color.YELLOW);
-        colorMaterial.color.addSample(time2, Color.BLUE);
-        colorMaterial.color.addSample(time3, Color.RED);
-
-        var outline = new TimeIntervalCollectionProperty();
-        outline.intervals.addInterval(new TimeInterval({
-            start : time1,
-            stop : time2,
-            data : false
-        }));
-        outline.intervals.addInterval(new TimeInterval({
-            start : time2,
-            stop : time3,
-            isStartIncluded : false,
-            data : true
-        }));
-
-        var outlineColor = new SampledProperty(Color);
-        outlineColor.addSample(time, Color.BLUE);
-        outlineColor.addSample(time2, Color.RED);
-        outlineColor.addSample(time3, Color.YELLOW);
-
-        var entity = createBasicBox();
-        entity.box.fill = fill;
-        entity.box.material = colorMaterial;
-        entity.box.outline = outline;
-        entity.box.outlineColor = outlineColor;
-
-        var updater = new BoxGeometryUpdater(entity, scene);
-
-        var instance = updater.createFillGeometryInstance(time2);
-        var attributes = instance.attributes;
-        expect(attributes.color.value).toEqual(ColorGeometryInstanceAttribute.toValue(colorMaterial.color.getValue(time2)));
-        expect(attributes.show.value).toEqual(ShowGeometryInstanceAttribute.toValue(fill.getValue(time2)));
-
-        instance = updater.createOutlineGeometryInstance(time2);
-        attributes = instance.attributes;
-        expect(attributes.color.value).toEqual(ColorGeometryInstanceAttribute.toValue(outlineColor.getValue(time2)));
-        expect(attributes.show.value).toEqual(ShowGeometryInstanceAttribute.toValue(outline.getValue(time2)));
-    });
-
-    it('createFillGeometryInstance obeys Entity.show is false.', function() {
-        var entity = createBasicBox();
-        entity.show = false;
-        entity.box.fill = true;
-        var updater = new BoxGeometryUpdater(entity, scene);
-        var instance = updater.createFillGeometryInstance(new JulianDate());
-        var attributes = instance.attributes;
-        expect(attributes.show.value).toEqual(ShowGeometryInstanceAttribute.toValue(false));
-    });
-
-    it('createOutlineGeometryInstance obeys Entity.show is false.', function() {
-        var entity = createBasicBox();
-        entity.show = false;
-        entity.box.outline = true;
-        var updater = new BoxGeometryUpdater(entity, scene);
-        var instance = updater.createFillGeometryInstance(new JulianDate());
-        var attributes = instance.attributes;
-        expect(attributes.show.value).toEqual(ShowGeometryInstanceAttribute.toValue(false));
-    });
-
     it('dynamic updater sets properties', function() {
         var entity = new Entity();
         entity.position = new ConstantPositionProperty(Cartesian3.fromDegrees(0, 0, 0));
@@ -357,7 +190,7 @@ defineSuite([
         dynamicUpdater.update(JulianDate.now());
         expect(primitives.length).toBe(0);
         entity.show = true;
-updater._onEntityPropertyChanged(entity, 'show');
+        updater._onEntityPropertyChanged(entity, 'show');
 
         box.show.setValue(false);
         updater._onEntityPropertyChanged(entity, 'box');
@@ -433,52 +266,13 @@ updater._onEntityPropertyChanged(entity, 'show');
         expect(listener.calls.count()).toEqual(3);
     });
 
-    it('createFillGeometryInstance throws if object is not filled', function() {
-        var entity = new Entity();
-        var updater = new BoxGeometryUpdater(entity, scene);
-        expect(function() {
-            return updater.createFillGeometryInstance(time);
-        }).toThrowDeveloperError();
-    });
-
-    it('createFillGeometryInstance throws if no time provided', function() {
-        var entity = createBasicBox();
-        var updater = new BoxGeometryUpdater(entity, scene);
-        expect(function() {
-            return updater.createFillGeometryInstance(undefined);
-        }).toThrowDeveloperError();
-    });
-
-    it('createOutlineGeometryInstance throws if object is not outlined', function() {
-        var entity = new Entity();
-        var updater = new BoxGeometryUpdater(entity, scene);
-        expect(function() {
-            return updater.createOutlineGeometryInstance(time);
-        }).toThrowDeveloperError();
-    });
-
-    it('createOutlineGeometryInstance throws if no time provided', function() {
-        var entity = createBasicBox();
-        entity.box.outline = new ConstantProperty(true);
-        var updater = new BoxGeometryUpdater(entity, scene);
-        expect(function() {
-            return updater.createOutlineGeometryInstance(undefined);
-        }).toThrowDeveloperError();
-    });
-
-    it('dynamicUpdater.update throws if no time specified', function() {
-        var entity = createBasicBox();
-        entity.box.dimensions = createDynamicProperty(new Cartesian3(1, 2, 3));
-        var updater = new BoxGeometryUpdater(entity, scene);
-        var dynamicUpdater = updater.createDynamicUpdater(new PrimitiveCollection(), new PrimitiveCollection());
-        expect(function() {
-            dynamicUpdater.update(undefined);
-        }).toThrowDeveloperError();
-    });
-
     var entity = createBasicBox();
     entity.box.dimensions = createDynamicProperty(new Cartesian3(1, 2, 3));
     createDynamicGeometryBoundingSphereSpecs(BoxGeometryUpdater, entity, entity.box, function() {
+        return scene;
+    });
+
+    createGeometryUpdaterSpecs(BoxGeometryUpdater, 'box', createBasicBox, function() {
         return scene;
     });
 }, 'WebGL');

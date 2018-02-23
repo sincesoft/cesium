@@ -24,6 +24,7 @@ defineSuite([
         'Scene/ShadowMode',
         'Specs/createDynamicGeometryBoundingSphereSpecs',
         'Specs/createDynamicProperty',
+        'Specs/createGeometryUpdaterSpecs',
         'Specs/createScene'
     ], function(
         EllipseGeometryUpdater,
@@ -51,6 +52,7 @@ defineSuite([
         ShadowMode,
         createDynamicGeometryBoundingSphereSpecs,
         createDynamicProperty,
+        createGeometryUpdaterSpecs,
         createScene) {
     'use strict';
 
@@ -91,41 +93,6 @@ defineSuite([
         return entity;
     }
 
-
-    it('Constructor sets expected defaults', function() {
-        var entity = new Entity();
-        var updater = new EllipseGeometryUpdater(entity, scene);
-
-        expect(updater.isDestroyed()).toBe(false);
-        expect(updater.entity).toBe(entity);
-        expect(updater.isClosed).toBe(false);
-        expect(updater.fillEnabled).toBe(false);
-        expect(updater.fillMaterialProperty).toBe(undefined);
-        expect(updater.outlineEnabled).toBe(false);
-        expect(updater.hasConstantFill).toBe(true);
-        expect(updater.hasConstantOutline).toBe(true);
-        expect(updater.outlineColorProperty).toBe(undefined);
-        expect(updater.outlineWidth).toBe(1.0);
-        expect(updater.distanceDisplayConditionProperty).toBe(undefined);
-        expect(updater.isDynamic).toBe(false);
-        expect(updater.isOutlineVisible(time)).toBe(false);
-        expect(updater.isFilled(time)).toBe(false);
-        expect(updater.shadowsProperty).toBe(undefined);
-        updater.destroy();
-        expect(updater.isDestroyed()).toBe(true);
-    });
-
-    it('No geometry available when ellipse is undefined ', function() {
-        var entity = createBasicEllipse();
-        var updater = new EllipseGeometryUpdater(entity, scene);
-        entity.ellipse = undefined;
-        updater._onEntityPropertyChanged(entity, 'ellipse');
-
-        expect(updater.fillEnabled).toBe(false);
-        expect(updater.outlineEnabled).toBe(false);
-        expect(updater.isDynamic).toBe(false);
-    });
-
     it('No geometry available when semiMajorAxis is undefined', function() {
         var entity = createBasicEllipse();
         var updater = new EllipseGeometryUpdater(entity, scene);
@@ -148,44 +115,6 @@ defineSuite([
         expect(updater.isDynamic).toBe(false);
     });
 
-    it('No geometry available when not filled or outline.', function() {
-        var entity = createBasicEllipse();
-        var updater = new EllipseGeometryUpdater(entity, scene);
-        entity.ellipse.fill = new ConstantProperty(false);
-        entity.ellipse.outline = new ConstantProperty(false);
-        updater._onEntityPropertyChanged(entity, 'ellipse');
-
-        expect(updater.fillEnabled).toBe(false);
-        expect(updater.outlineEnabled).toBe(false);
-        expect(updater.isDynamic).toBe(false);
-    });
-
-    it('Values correct when using default graphics', function() {
-        var entity = createBasicEllipse();
-        var updater = new EllipseGeometryUpdater(entity, scene);
-
-        expect(updater.isClosed).toBe(true);
-        expect(updater.fillEnabled).toBe(true);
-        expect(updater.fillMaterialProperty).toEqual(new ColorMaterialProperty(Color.WHITE));
-        expect(updater.outlineEnabled).toBe(false);
-        expect(updater.hasConstantFill).toBe(true);
-        expect(updater.hasConstantOutline).toBe(true);
-        expect(updater.outlineColorProperty).toBe(undefined);
-        expect(updater.outlineWidth).toBe(1.0);
-        expect(updater.isDynamic).toBe(false);
-        expect(updater.shadowsProperty).toEqual(new ConstantProperty(ShadowMode.DISABLED));
-        expect(updater.distanceDisplayConditionProperty).toEqual(new ConstantProperty(new DistanceDisplayCondition()));
-    });
-
-    it('Ellipse material is correctly exposed.', function() {
-        var entity = createBasicEllipse();
-        var updater = new EllipseGeometryUpdater(entity, scene);
-        entity.ellipse.material = new GridMaterialProperty(Color.BLUE);
-        updater._onEntityPropertyChanged(entity, 'ellipse');
-
-        expect(updater.fillMaterialProperty).toBe(entity.ellipse.material);
-    });
-
     it('Settings extrudedHeight causes geometry to be closed.', function() {
         var entity = createBasicEllipse();
         var updater = new EllipseGeometryUpdater(entity, scene);
@@ -193,16 +122,6 @@ defineSuite([
         updater._onEntityPropertyChanged(entity, 'ellipse');
 
         expect(updater.isClosed).toBe(true);
-    });
-
-    it('A time-varying outline width causes geometry to be dynamic', function() {
-        var entity = createBasicEllipse();
-        var updater = new EllipseGeometryUpdater(entity, scene);
-        entity.ellipse.outlineWidth = new SampledProperty(Number);
-        entity.ellipse.outlineWidth.addSample(time, 1);
-        updater._onEntityPropertyChanged(entity, 'ellipse');
-
-        expect(updater.isDynamic).toBe(true);
     });
 
     it('A time-varying position causes geometry to be dynamic', function() {
@@ -293,17 +212,6 @@ defineSuite([
         updater._onEntityPropertyChanged(entity, 'ellipse');
 
         expect(updater.isDynamic).toBe(true);
-    });
-
-    it('A time-varying color causes ground geometry to be dynamic', function() {
-        var entity = createBasicEllipseWithoutHeight();
-        var updater = new EllipseGeometryUpdater(entity, scene);
-        var color = new SampledProperty(Color);
-        color.addSample(time, Color.WHITE);
-        entity.ellipse.material = new ColorMaterialProperty(color);
-        updater._onEntityPropertyChanged(entity, 'ellipse');
-
-        expect(updater.isDynamic).toBe(groundPrimitiveSupported);
     });
 
     function validateGeometryInstance(options) {
@@ -436,13 +344,6 @@ defineSuite([
         });
     });
 
-    it('Correctly exposes outlineWidth', function() {
-        var entity = createBasicEllipse();
-        entity.ellipse.outlineWidth = new ConstantProperty(8);
-        var updater = new EllipseGeometryUpdater(entity, scene);
-        expect(updater.outlineWidth).toBe(8);
-    });
-
     it('Attributes have expected values at creation time', function() {
         var time1 = new JulianDate(0, 0);
         var time2 = new JulianDate(10, 0);
@@ -547,26 +448,6 @@ defineSuite([
         var updater = new EllipseGeometryUpdater(entity, scene);
 
         expect(updater.onTerrain).toBe(false);
-    });
-
-    it('createFillGeometryInstance obeys Entity.show is false.', function() {
-        var entity = createBasicEllipse();
-        entity.show = false;
-        entity.ellipse.fill = true;
-        var updater = new EllipseGeometryUpdater(entity, scene);
-        var instance = updater.createFillGeometryInstance(new JulianDate());
-        var attributes = instance.attributes;
-        expect(attributes.show.value).toEqual(ShowGeometryInstanceAttribute.toValue(false));
-    });
-
-    it('createOutlineGeometryInstance obeys Entity.show is false.', function() {
-        var entity = createBasicEllipse();
-        entity.show = false;
-        entity.ellipse.outline = true;
-        var updater = new EllipseGeometryUpdater(entity, scene);
-        var instance = updater.createFillGeometryInstance(new JulianDate());
-        var attributes = instance.attributes;
-        expect(attributes.show.value).toEqual(ShowGeometryInstanceAttribute.toValue(false));
     });
 
     it('dynamic updater sets properties', function() {
@@ -709,49 +590,6 @@ defineSuite([
         expect(listener.calls.count()).toEqual(5);
     });
 
-    it('createFillGeometryInstance throws if object is not filled', function() {
-        var entity = new Entity();
-        var updater = new EllipseGeometryUpdater(entity, scene);
-        expect(function() {
-            return updater.createFillGeometryInstance(time);
-        }).toThrowDeveloperError();
-    });
-
-    it('createFillGeometryInstance throws if no time provided', function() {
-        var entity = createBasicEllipse();
-        var updater = new EllipseGeometryUpdater(entity, scene);
-        expect(function() {
-            return updater.createFillGeometryInstance(undefined);
-        }).toThrowDeveloperError();
-    });
-
-    it('createOutlineGeometryInstance throws if object is not outlined', function() {
-        var entity = new Entity();
-        var updater = new EllipseGeometryUpdater(entity, scene);
-        expect(function() {
-            return updater.createOutlineGeometryInstance(time);
-        }).toThrowDeveloperError();
-    });
-
-    it('createOutlineGeometryInstance throws if no time provided', function() {
-        var entity = createBasicEllipse();
-        entity.ellipse.outline = new ConstantProperty(true);
-        var updater = new EllipseGeometryUpdater(entity, scene);
-        expect(function() {
-            return updater.createOutlineGeometryInstance(undefined);
-        }).toThrowDeveloperError();
-    });
-
-    it('dynamicUpdater.update throws if no time specified', function() {
-        var entity = createBasicEllipse();
-        entity.ellipse.semiMajorAxis = createDynamicProperty(4);
-        var updater = new EllipseGeometryUpdater(entity, scene);
-        var dynamicUpdater = updater.createDynamicUpdater(new PrimitiveCollection(), new PrimitiveCollection());
-        expect(function() {
-            dynamicUpdater.update(undefined);
-        }).toThrowDeveloperError();
-    });
-
     it('fill is true sets onTerrain to true', function() {
         var entity = createBasicEllipseWithoutHeight();
         entity.ellipse.fill = true;
@@ -809,6 +647,10 @@ defineSuite([
     var entity = createBasicEllipse();
     entity.ellipse.semiMajorAxis = createDynamicProperty(4);
     createDynamicGeometryBoundingSphereSpecs(EllipseGeometryUpdater, entity, entity.ellipse, function() {
+        return scene;
+    });
+
+    createGeometryUpdaterSpecs(EllipseGeometryUpdater, 'ellipse', createBasicEllipse, function() {
         return scene;
     });
 }, 'WebGL');

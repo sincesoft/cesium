@@ -25,6 +25,7 @@ defineSuite([
         'Scene/ShadowMode',
         'Specs/createDynamicGeometryBoundingSphereSpecs',
         'Specs/createDynamicProperty',
+        'Specs/createGeometryUpdaterSpecs',
         'Specs/createScene'
     ], function(
         CorridorGeometryUpdater,
@@ -53,6 +54,7 @@ defineSuite([
         ShadowMode,
         createDynamicGeometryBoundingSphereSpecs,
         createDynamicProperty,
+        createGeometryUpdaterSpecs,
         createScene) {
     'use strict';
 
@@ -99,78 +101,6 @@ defineSuite([
         return entity;
     }
 
-    it('Constructor sets expected defaults', function() {
-        var entity = new Entity();
-        var updater = new CorridorGeometryUpdater(entity, scene);
-
-        expect(updater.isDestroyed()).toBe(false);
-        expect(updater.entity).toBe(entity);
-        expect(updater.isClosed).toBe(false);
-        expect(updater.fillEnabled).toBe(false);
-        expect(updater.fillMaterialProperty).toBe(undefined);
-        expect(updater.outlineEnabled).toBe(false);
-        expect(updater.hasConstantFill).toBe(true);
-        expect(updater.hasConstantOutline).toBe(true);
-        expect(updater.outlineColorProperty).toBe(undefined);
-        expect(updater.outlineWidth).toBe(1.0);
-        expect(updater.shadowsProperty).toBe(undefined);
-        expect(updater.distanceDisplayConditionProperty).toBe(undefined);
-        expect(updater.isDynamic).toBe(false);
-        expect(updater.isOutlineVisible(time)).toBe(false);
-        expect(updater.isFilled(time)).toBe(false);
-        updater.destroy();
-        expect(updater.isDestroyed()).toBe(true);
-    });
-
-    it('No geometry available when corridor is undefined ', function() {
-        var entity = createBasicCorridor();
-        var updater = new CorridorGeometryUpdater(entity, scene);
-        entity.corridor = undefined;
-        updater._onEntityPropertyChanged(entity, 'corridor');
-
-        expect(updater.fillEnabled).toBe(false);
-        expect(updater.outlineEnabled).toBe(false);
-        expect(updater.isDynamic).toBe(false);
-    });
-
-    it('No geometry available when not filled or outline.', function() {
-        var entity = createBasicCorridor();
-        var updater = new CorridorGeometryUpdater(entity, scene);
-        entity.corridor.fill = new ConstantProperty(false);
-        entity.corridor.outline = new ConstantProperty(false);
-        updater._onEntityPropertyChanged(entity, 'corridor');
-
-        expect(updater.fillEnabled).toBe(false);
-        expect(updater.outlineEnabled).toBe(false);
-        expect(updater.isDynamic).toBe(false);
-    });
-
-    it('Values correct when using default graphics', function() {
-        var entity = createBasicCorridor();
-        var updater = new CorridorGeometryUpdater(entity, scene);
-
-        expect(updater.isClosed).toBe(true);
-        expect(updater.fillEnabled).toBe(true);
-        expect(updater.fillMaterialProperty).toEqual(new ColorMaterialProperty(Color.WHITE));
-        expect(updater.outlineEnabled).toBe(false);
-        expect(updater.hasConstantFill).toBe(true);
-        expect(updater.hasConstantOutline).toBe(true);
-        expect(updater.outlineColorProperty).toBe(undefined);
-        expect(updater.outlineWidth).toBe(1.0);
-        expect(updater.shadowsProperty).toEqual(new ConstantProperty(ShadowMode.DISABLED));
-        expect(updater.distanceDisplayConditionProperty).toEqual(new ConstantProperty(new DistanceDisplayCondition()));
-        expect(updater.isDynamic).toBe(false);
-    });
-
-    it('Corridor material is correctly exposed.', function() {
-        var entity = createBasicCorridor();
-        var updater = new CorridorGeometryUpdater(entity, scene);
-        entity.corridor.material = new GridMaterialProperty(Color.BLUE);
-        updater._onEntityPropertyChanged(entity, 'corridor');
-
-        expect(updater.fillMaterialProperty).toBe(entity.corridor.material);
-    });
-
     it('Settings extrudedHeight causes geometry to be closed.', function() {
         var entity = createBasicCorridor();
         var updater = new CorridorGeometryUpdater(entity, scene);
@@ -178,16 +108,6 @@ defineSuite([
         updater._onEntityPropertyChanged(entity, 'corridor');
 
         expect(updater.isClosed).toBe(true);
-    });
-
-    it('A time-varying outlineWidth causes geometry to be dynamic', function() {
-        var entity = createBasicCorridor();
-        var updater = new CorridorGeometryUpdater(entity, scene);
-        entity.corridor.outlineWidth = new SampledProperty(Number);
-        entity.corridor.outlineWidth.addSample(time, 1);
-        updater._onEntityPropertyChanged(entity, 'corridor');
-
-        expect(updater.isDynamic).toBe(true);
     });
 
     it('A time-varying positions causes geometry to be dynamic', function() {
@@ -259,17 +179,6 @@ defineSuite([
         updater._onEntityPropertyChanged(entity, 'corridor');
 
         expect(updater.isDynamic).toBe(true);
-    });
-
-    it('A time-varying color causes ground geometry to be dynamic', function() {
-        var entity = createBasicCorridorWithoutHeight();
-        var updater = new CorridorGeometryUpdater(entity, scene);
-        var color = new SampledProperty(Color);
-        color.addSample(time, Color.WHITE);
-        entity.corridor.material = new ColorMaterialProperty(color);
-        updater._onEntityPropertyChanged(entity, 'corridor');
-
-        expect(updater.isDynamic).toBe(groundPrimitiveSupported);
     });
 
     function validateGeometryInstance(options) {
@@ -376,74 +285,6 @@ defineSuite([
         });
     });
 
-    it('Correctly exposes outlineWidth', function() {
-        var entity = createBasicCorridor();
-        entity.corridor.outlineWidth = new ConstantProperty(8);
-        var updater = new CorridorGeometryUpdater(entity, scene);
-        expect(updater.outlineWidth).toBe(8);
-    });
-
-    it('Attributes have expected values at creation time', function() {
-        var time1 = new JulianDate(0, 0);
-        var time2 = new JulianDate(10, 0);
-        var time3 = new JulianDate(20, 0);
-
-        var fill = new TimeIntervalCollectionProperty();
-        fill.intervals.addInterval(new TimeInterval({
-            start : time1,
-            stop : time2,
-            data : false
-        }));
-        fill.intervals.addInterval(new TimeInterval({
-            start : time2,
-            stop : time3,
-            isStartIncluded : false,
-            data : true
-        }));
-
-        var colorMaterial = new ColorMaterialProperty();
-        colorMaterial.color = new SampledProperty(Color);
-        colorMaterial.color.addSample(time, Color.YELLOW);
-        colorMaterial.color.addSample(time2, Color.BLUE);
-        colorMaterial.color.addSample(time3, Color.RED);
-
-        var outline = new TimeIntervalCollectionProperty();
-        outline.intervals.addInterval(new TimeInterval({
-            start : time1,
-            stop : time2,
-            data : false
-        }));
-        outline.intervals.addInterval(new TimeInterval({
-            start : time2,
-            stop : time3,
-            isStartIncluded : false,
-            data : true
-        }));
-
-        var outlineColor = new SampledProperty(Color);
-        outlineColor.addSample(time, Color.BLUE);
-        outlineColor.addSample(time2, Color.RED);
-        outlineColor.addSample(time3, Color.YELLOW);
-
-        var entity = createBasicCorridor();
-        entity.corridor.fill = fill;
-        entity.corridor.material = colorMaterial;
-        entity.corridor.outline = outline;
-        entity.corridor.outlineColor = outlineColor;
-
-        var updater = new CorridorGeometryUpdater(entity, scene);
-
-        var instance = updater.createFillGeometryInstance(time2);
-        var attributes = instance.attributes;
-        expect(attributes.color.value).toEqual(ColorGeometryInstanceAttribute.toValue(colorMaterial.color.getValue(time2)));
-        expect(attributes.show.value).toEqual(ShowGeometryInstanceAttribute.toValue(fill.getValue(time2)));
-
-        instance = updater.createOutlineGeometryInstance(time2);
-        attributes = instance.attributes;
-        expect(attributes.color.value).toEqual(ColorGeometryInstanceAttribute.toValue(outlineColor.getValue(time2)));
-        expect(attributes.show.value).toEqual(ShowGeometryInstanceAttribute.toValue(outline.getValue(time2)));
-    });
-
     it('Checks that an entity without height and extrudedHeight and with a color material is on terrain', function() {
         var entity = createBasicCorridor();
         entity.corridor.height = undefined;
@@ -487,26 +328,6 @@ defineSuite([
         var updater = new CorridorGeometryUpdater(entity, scene);
 
         expect(updater.onTerrain).toBe(false);
-    });
-
-    it('createFillGeometryInstance obeys Entity.show is false.', function() {
-        var entity = createBasicCorridor();
-        entity.show = false;
-        entity.corridor.fill = true;
-        var updater = new CorridorGeometryUpdater(entity, scene);
-        var instance = updater.createFillGeometryInstance(new JulianDate());
-        var attributes = instance.attributes;
-        expect(attributes.show.value).toEqual(ShowGeometryInstanceAttribute.toValue(false));
-    });
-
-    it('createOutlineGeometryInstance obeys Entity.show is false.', function() {
-        var entity = createBasicCorridor();
-        entity.show = false;
-        entity.corridor.outline = true;
-        var updater = new CorridorGeometryUpdater(entity, scene);
-        var instance = updater.createFillGeometryInstance(new JulianDate());
-        var attributes = instance.attributes;
-        expect(attributes.show.value).toEqual(ShowGeometryInstanceAttribute.toValue(false));
     });
 
     it('dynamic updater sets properties', function() {
@@ -654,50 +475,6 @@ defineSuite([
         expect(listener.calls.count()).toEqual(4);
     });
 
-    it('createFillGeometryInstance throws if object is not filled', function() {
-        var entity = new Entity();
-        var updater = new CorridorGeometryUpdater(entity, scene);
-        expect(function() {
-            return updater.createFillGeometryInstance(time);
-        }).toThrowDeveloperError();
-    });
-
-    it('createFillGeometryInstance throws if no time provided', function() {
-        var entity = createBasicCorridor();
-        var updater = new CorridorGeometryUpdater(entity, scene);
-        expect(function() {
-            return updater.createFillGeometryInstance(undefined);
-        }).toThrowDeveloperError();
-    });
-
-    it('createOutlineGeometryInstance throws if object is not outlined', function() {
-        var entity = new Entity();
-        var updater = new CorridorGeometryUpdater(entity, scene);
-        expect(function() {
-            return updater.createOutlineGeometryInstance(time);
-        }).toThrowDeveloperError();
-    });
-
-    it('createOutlineGeometryInstance throws if no time provided', function() {
-        var entity = createBasicCorridor();
-        entity.corridor.outline = new ConstantProperty(true);
-        var updater = new CorridorGeometryUpdater(entity, scene);
-        expect(function() {
-            return updater.createOutlineGeometryInstance(undefined);
-        }).toThrowDeveloperError();
-    });
-
-    it('dynamicUpdater.update throws if no time specified', function() {
-        var entity = createBasicCorridor();
-        entity.corridor.height = new SampledProperty(Number);
-        entity.corridor.height.addSample(time, 4);
-        var updater = new CorridorGeometryUpdater(entity, scene);
-        var dynamicUpdater = updater.createDynamicUpdater(new PrimitiveCollection(), new PrimitiveCollection());
-        expect(function() {
-            dynamicUpdater.update(undefined);
-        }).toThrowDeveloperError();
-    });
-
     it('fill is true sets onTerrain to true', function() {
         var entity = createBasicCorridorWithoutHeight();
         entity.corridor.fill = true;
@@ -755,6 +532,10 @@ defineSuite([
     var entity = createBasicCorridor();
     entity.corridor.positions = createDynamicProperty(Cartesian3.fromRadiansArray([0, 0, 1, 0, 1, 1, 0, 1]));
     createDynamicGeometryBoundingSphereSpecs(CorridorGeometryUpdater, entity, entity.corridor, function() {
+        return scene;
+    });
+
+    createGeometryUpdaterSpecs(CorridorGeometryUpdater, 'corridor', createBasicCorridor, function() {
         return scene;
     });
 }, 'WebGL');
