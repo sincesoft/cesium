@@ -196,8 +196,7 @@ define([
     EllipseGeometryUpdater.prototype._getIsClosed = function(options) {
         var height = options.height;
         var extrudedHeight = options.extrudedHeight;
-        var isExtruded = defined(extrudedHeight);
-        return (!isExtruded && height === 0) || (isExtruded && extrudedHeight !== height);
+        return height === 0 || (defined(extrudedHeight) && extrudedHeight !== height);
     };
 
     EllipseGeometryUpdater.prototype._setStaticOptions = function(entity, ellipse) {

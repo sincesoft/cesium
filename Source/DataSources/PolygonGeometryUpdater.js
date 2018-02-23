@@ -229,8 +229,8 @@ define([
     PolygonGeometryUpdater.prototype._getIsClosed = function(options) {
         var height = options.height;
         var extrudedHeight = options.extrudedHeight;
-        var isExtruded = defined(extrudedHeight);
-        return (!isExtruded && height === 0) || (isExtruded && extrudedHeight !== height && options.closeTop === true && options.closeBottom === true);
+        var isExtruded = defined(extrudedHeight) && extrudedHeight !== height;
+        return !options.perPositionHeight && (!isExtruded && height === 0 || (isExtruded && options.closeTop && options.closeBottom));
     };
 
     PolygonGeometryUpdater.DynamicGeometryUpdater = DyanmicPolygonGeometryUpdater;
